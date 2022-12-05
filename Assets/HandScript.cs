@@ -5,16 +5,14 @@ using UnityEngine;
 public class HandScript : MonoBehaviour
 {
 
-    [Header("Settings")]
-    [Range(0.1f, 10f)]
-    [SerializeField] float Sensitivity = 5f;
+    
 
     [Header("Keybinds")]
     [SerializeField] KeyCode GrabKey = KeyCode.Mouse0;
 
-    [SerializeField] ArmControllerCross parent;
+    [SerializeField] GameObject parent;
 
-    [SerializeField] float angle = 0f;
+    public bool usingHinge = false;
 
     // Start is called before the first frame update
     void Start()
@@ -22,10 +20,26 @@ public class HandScript : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        angle += -Input.mouseScrollDelta.y * Sensitivity;
+        transform.rotation = Find();
+        HingeJoint hingeJoint = gameObject.GetComponent<HingeJoint>();
+        if(hingeJoint != null) {
+            JointSpring springJoint = hingeJoint.spring;
+            springJoint.targetPosition = Find().x;
+            hingeJoint.spring = springJoint;
+            usingHinge = true;
+        } else {
+            transform.rotation = Find();
+            usingHinge = false;
+        }
+    }
 
-        transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(angle, 0, 0), 0.1f);
+    Quaternion Find() {
+        Quaternion toReturn;
+        if((toReturn = parent.GetComponent<ArmController>().target.rotation) != null) {return toReturn;}
+        if((toReturn = parent.GetComponent<ArmControllerCross>().target.rotation) != null) {return toReturn;}
+        if((toReturn = parent.GetComponent<ArmControllerCrossPhysics>().target.rotation) != null) {return toReturn;}
+        return toReturn;
     }
 }

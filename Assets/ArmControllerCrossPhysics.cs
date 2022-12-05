@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ArmControllerCross : ArmController
+public class ArmControllerCrossPhysics : ArmController
 {
 
     public bool slerp = true;
@@ -45,40 +45,36 @@ public class ArmControllerCross : ArmController
         }
 
         if (flipped) {
-            joint_angle *= -1;
+            // joint_angle *= -1;
             other_angle1 *= -1;
             other_angle2 *= -1;
             // extra_angle *= -1;
         }
 
-        Quaternion target_lower;
-        Quaternion target_upper;
+        float target_lower;
+        float target_upper;
 
         if (Vector3.Distance(root_base.position, target.position) < l1+l2) {
-            target_lower = Quaternion.Euler(90 - other_angle2 - extra_angle, 0, 0);
-            target_upper = Quaternion.Euler(180 - joint_angle, 0, 0);
+            target_lower = 90 - other_angle2 - extra_angle;
+            target_upper = joint_angle - 180f;
+            if(!flipped) {target_upper *= -1f;}
         } else {
-            target_lower = Quaternion.Euler(90 - extra_angle, 0, 0);
-            target_upper = Quaternion.Euler(180 - 180, 0, 0);
+            target_lower = 90 - extra_angle;
+            target_upper = 180 - 180;
         }
 
-        //Debug.Log($"joint: {joint_angle}Deg \n arm: {other_angle}Deg");
-        // joint_angle = Mathf.Deg2Rad * joint_angle;
-        // other_angle = Mathf.Deg2Rad * other_angle;
-        // Debug.Log($"joint: {joint_angle}Rad \n arm: {other_angle}Rad");
-        
-        // float dist = target.position.z - transform.position.z;
-        // if (dist < 0) {dist *= -1;}
-        float tempSpeed = RotationSpeed;
-        // if (dist < 0.1f) {tempSpeed = 0.01f;}
+        Debug.Log(target_lower);
+        Debug.Log(target_upper);
 
-        if (!slerp) {
-            lower_arm.localRotation = target_lower;
-            upper_arm.localRotation = target_upper;
-        } else {
-            lower_arm.localRotation = Quaternion.Slerp(lower_arm.localRotation, target_lower, tempSpeed);
-            upper_arm.localRotation = Quaternion.Lerp(upper_arm.localRotation, target_upper, tempSpeed);
-        }
+        HingeJoint lowerHinge = lower_arm.gameObject.GetComponent<HingeJoint>();
+        JointSpring lowerSpring = lowerHinge.spring;
+        lowerSpring.targetPosition = target_lower;
+        lowerHinge.spring = lowerSpring;
+
+        HingeJoint upperHinge = upper_arm.gameObject.GetComponent<HingeJoint>();
+        JointSpring upperSpring = lowerHinge.spring;
+        upperSpring.targetPosition = target_upper;
+        upperHinge.spring = upperSpring;
 
 
     }
