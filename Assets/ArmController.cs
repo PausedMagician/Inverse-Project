@@ -44,8 +44,7 @@ public class ArmController : MonoBehaviour
     public void MoveArm(float joint_angle, float other_angle1, float other_angle2) {
         float extra_angle = Vector3.Angle(transform.forward, new Vector3(target.position.x - root_base.position.x, target.position.y - root_base.position.y, target.position.z - root_base.position.z));
 
-        if (target.position.y < root_base.position.y) {
-            extra_angle *= -1;
+        if (target.position.z < root_base.position.z) {
             joint_angle *= -1;
             other_angle1 *= -1;
             other_angle2 *= -1;
@@ -66,8 +65,8 @@ public class ArmController : MonoBehaviour
             lower_arm.localRotation = target_lower;
             upper_arm.localRotation = target_upper;
         } else {
-            lower_arm.localRotation = Quaternion.Slerp(lower_arm.localRotation, target_lower, armSpeed);
-            upper_arm.localRotation = Quaternion.Lerp(upper_arm.localRotation, target_upper, armSpeed);
+            lower_arm.localRotation = Quaternion.Slerp(lower_arm.localRotation, target_lower, armSpeed * Time.deltaTime * 20);
+            upper_arm.localRotation = Quaternion.Lerp(upper_arm.localRotation, target_upper, armSpeed * Time.deltaTime * 20);
         }
     }
 

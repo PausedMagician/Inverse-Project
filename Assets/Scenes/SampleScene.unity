@@ -3122,7 +3122,7 @@ MonoBehaviour:
   handAngle: 0
   scrollSensitivity: 5
   slerp: 1
-  armSpeed: 0.25
+  armSpeed: 0.1
 --- !u!1 &1854169255
 GameObject:
   m_ObjectHideFlags: 0
